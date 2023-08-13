@@ -72,7 +72,7 @@ bool PAK_OpenRead(const char *filename)
 
   /* read directory */
 
-  if (r_header.entry_num >= 5000)  // sanity check
+  if (r_header.entry_num >= 15000)  // sanity check
   {
     LogPrintf("PAK_OpenRead: bad header (%d entries?)\n", r_header.entry_num);
     fclose(r_pak_fp);
@@ -403,7 +403,7 @@ bool WAD2_OpenRead(const char *filename)
 
   /* read directory */
 
-  if (wad_R_header.num_lumps >= 5000)  // sanity check
+  if (wad_R_header.num_lumps >= 15000)  // sanity check
   {
     LogPrintf("WAD2_OpenRead: bad header (%d entries?)\n", wad_R_header.num_lumps);
     fclose(wad_R_fp);
