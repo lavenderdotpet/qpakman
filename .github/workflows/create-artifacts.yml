@@ -1,0 +1,105 @@
+name: build
+
+on: [push, pull_request]
+
+jobs:
+  linux_build:
+    runs-on: ubuntu-latest
+    env:
+      CXX: g++
+    steps:
+    - name: Update Local Aptitude Repos
+      run: |
+        sudo dpkg --add-architecture i386
+        sudo apt update
+    - name: Install CMake
+      run: |
+        sudo apt install -y cmake
+    - name: Install 32-bit libraries
+      run: |
+        sudo apt install -y g++-multilib zlib1g:i386 libsnappy-dev:i386 liblz4-1:i386 libpng-dev:i386
+    - name: Checkout
+      uses: actions/checkout@v4
+    - name: Build 64 bit
+      run: |
+        mkdir build-lin64 && cd build-lin64
+        cmake ../
+        cmake --build .
+        cd ../
+    - name: Archive qpakman Linux64
+      uses: actions/upload-artifact@v4
+      with:
+        name: qpakman-linux64
+        path: ./build-lin64/qpakman
+    - name: Build 32 bit
+      run: |
+        mkdir build-lin32 && cd build-lin32
+        cmake -E env CXXFLAGS="-m32" cmake ../
+        cmake ../
+        cmake --build .
+        cd ../
+    - name: Archive qpakman Linux32
+      uses: actions/upload-artifact@v4
+      with:
+        name: qpakman-linux32
+        path: ./build-lin32/qpakman
+
+  macos_build:
+    runs-on: macos-latest
+    env:
+      CXX: clang++
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    - name: Build
+      run: |
+        mkdir build-macos && cd build-macos
+        cmake ../
+        cmake --build .
+    - name: Archive qpakman macOS
+      uses: actions/upload-artifact@v4
+      with:
+        name: qpakman-macos
+        path: ./build-macos/qpakman
+
+  windows_build:
+    runs-on: windows-2019
+    env:
+      VCPKG_VERSION: 8eb57355a4ffb410a2e94c07b4dca2dffbee8e50
+      vcpkg_packages: zlib libpng
+    strategy:
+      matrix:
+        config:
+          - {
+              arch: x86,
+              generator: "-G'Visual Studio 16 2019' -A Win32",
+              vcpkg_triplet: x86-windows,
+              artifact_name: windows32
+            }
+          - {
+              arch: x64,
+              generator: "-G'Visual Studio 16 2019' -A x64",
+              vcpkg_triplet: x64-windows,
+              artifact_name: windows64
+            }
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    - name: Run vcpkg
+      uses: lukka/run-vcpkg@v7
+      with:
+        vcpkgArguments: zlib libpng
+        vcpkgDirectory: '${{ github.workspace }}\vcpkg'
+        appendedCacheKey: ${{ matrix.config.vcpkg_triplet }}
+        vcpkgGitCommitId: ${{ env.VCPKG_VERSION }}
+        vcpkgTriplet: ${{ matrix.config.vcpkg_triplet }}
+    - name: Build
+      run: |
+        mkdir build-${{ matrix.config.vcpkg_triplet }} && cd build-${{ matrix.config.vcpkg_triplet }}
+        cmake ${{matrix.config.generator}} -DCMAKE_TOOLCHAIN_FILE="${{ github.workspace }}\vcpkg\scripts\buildsystems\vcpkg.cmake" ../
+        cmake --build .
+    - name: Archive qpakman Windows
+      uses: actions/upload-artifact@v4
+      with:
+        name: qpakman-${{ matrix.config.artifact_name }}
+        path: ./build-${{ matrix.config.vcpkg_triplet }}/Debug/qpakman.exe
