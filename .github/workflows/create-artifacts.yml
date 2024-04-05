@@ -73,13 +73,13 @@ jobs:
           - {
               arch: x86,
               generator: "-G'Visual Studio 16 2019' -A Win32",
-              vcpkg_triplet: x86-windows,
+              vcpkg_triplet: x86-windows-static,
               artifact_name: windows32
             }
           - {
               arch: x64,
               generator: "-G'Visual Studio 16 2019' -A x64",
-              vcpkg_triplet: x64-windows,
+              vcpkg_triplet: x64-windows-static,
               artifact_name: windows64
             }
     steps:
@@ -96,10 +96,10 @@ jobs:
     - name: Build
       run: |
         mkdir build-${{ matrix.config.vcpkg_triplet }} && cd build-${{ matrix.config.vcpkg_triplet }}
-        cmake ${{matrix.config.generator}} -DCMAKE_TOOLCHAIN_FILE="${{ github.workspace }}\vcpkg\scripts\buildsystems\vcpkg.cmake" ../
-        cmake --build .
+        cmake ${{matrix.config.generator}} -DCMAKE_TOOLCHAIN_FILE="${{ github.workspace }}\vcpkg\scripts\buildsystems\vcpkg.cmake" -DVCPKG_TARGET_TRIPLET="${{ matrix.config.vcpkg_triplet }}" -DCMAKE_MSVC_RUNTIME_LIBRARY="MultiThreaded" ../
+        cmake --build . --config Release
     - name: Archive qpakman Windows
       uses: actions/upload-artifact@v4
       with:
         name: qpakman-${{ matrix.config.artifact_name }}
-        path: ./build-${{ matrix.config.vcpkg_triplet }}/Debug/qpakman.exe
+        path: ./build-${{ matrix.config.vcpkg_triplet }}/Release/qpakman.exe
