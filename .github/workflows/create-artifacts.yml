@@ -45,7 +45,7 @@ jobs:
         path: ./build-lin32/qpakman
 
   macos_build:
-    runs-on: macos-latest
+    runs-on: macos-13
     env:
       CXX: clang++
     steps:
