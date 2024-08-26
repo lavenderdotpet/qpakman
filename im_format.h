@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------
-//  PNG Image Handling
+//  Image Handling
 //------------------------------------------------------------------------
 //
 //  Copyright (c) 2008  Andrew J Apted
@@ -16,24 +16,24 @@
 //
 //------------------------------------------------------------------------
 
-#ifndef __IMAGE_PNG_H__
-#define __IMAGE_PNG_H__
+#ifndef __IMAGE_FORMAT_H__
+#define __IMAGE_FORMAT_H__
 
 #include "headers.h"
 
 #include "im_image.h"
 
-rgb_image_c * PNG_Load(FILE *fp);
-// loads the given PNG image.  Returns 0 if something went wrong.
-// The image will be RGB or RGBA (never paletted).
+rgb_image_c * Image_Load(FILE *fp);
+// loads the given PNG/JPG/TGA/BMP image.  Returns 0 if something went wrong.
+// The image will be BGR or BGRA (never paletted).
 
-bool PNG_Save(FILE *fp, rgb_image_c *img, int compress = 3);
+bool Image_Save(const char *filename, rgb_image_c *img, int compress = 3);
 // saves the image (in PNG format) to the given file.  The compression
 // level should be between 1 (Z_BEST_SPEED) and 9 (Z_BEST_COMPRESSION).
 // Returns false if failed to save.
 // NOTE: Alpha channel is IGNORED.
 
-#endif  /* __IMAGE_PNG_H__ */
+#endif  /* __IMAGE_FORMAT_H__ */
 
 //--- editor settings ---
 // vi:ts=2:sw=2:expandtab
