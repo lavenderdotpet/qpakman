@@ -17,7 +17,7 @@ jobs:
         sudo apt install -y cmake
     - name: Install 32-bit libraries
       run: |
-        sudo apt install -y g++-multilib zlib1g:i386 libsnappy-dev:i386 liblz4-1:i386 libpng-dev:i386
+        sudo apt install -y g++-multilib zlib1g:i386 libsnappy-dev:i386 liblz4-1:i386
     - name: Checkout
       uses: actions/checkout@v4
     - name: Build 64 bit
@@ -66,7 +66,7 @@ jobs:
     runs-on: windows-2019
     env:
       VCPKG_VERSION: 8eb57355a4ffb410a2e94c07b4dca2dffbee8e50
-      vcpkg_packages: zlib libpng
+      vcpkg_packages: zlib
     strategy:
       matrix:
         config:
@@ -88,7 +88,7 @@ jobs:
     - name: Run vcpkg
       uses: lukka/run-vcpkg@v7
       with:
-        vcpkgArguments: zlib libpng
+        vcpkgArguments: zlib
         vcpkgDirectory: '${{ github.workspace }}\vcpkg'
         appendedCacheKey: ${{ matrix.config.vcpkg_triplet }}
         vcpkgGitCommitId: ${{ env.VCPKG_VERSION }}
