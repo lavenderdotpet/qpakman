@@ -352,9 +352,9 @@ byte COL_FindColor(const byte *palette, u32_t rgb_col)
 
   for (int i = min_col; i <= max_col; i++)
   {
-    int dr = RGB_R(rgb_col) - palette[i*3+0];
+    int dr = RGB_R(rgb_col) - palette[i*3+2];
     int dg = RGB_G(rgb_col) - palette[i*3+1];
-    int db = RGB_B(rgb_col) - palette[i*3+2];
+    int db = RGB_B(rgb_col) - palette[i*3+0];
 
     int dist = dr*dr + dg*dg + db*db;
 
