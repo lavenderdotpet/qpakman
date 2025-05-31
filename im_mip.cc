@@ -24,7 +24,7 @@
 #include "im_color.h"
 #include "im_image.h"
 #include "im_mip.h"
-#include "im_png.h"
+#include "im_format.h"
 #include "pakfile.h"
 #include "q1_structs.h"
 
@@ -41,30 +41,15 @@ std::map<std::string, int> all_lump_names;
 rgb_image_c *MIP_LoadImage(const char *filename)
 {
   // Note: extension checks are case-insensitive
-
-  if (CheckExtension(filename, "bmp") || CheckExtension(filename, "tga") ||
-      CheckExtension(filename, "gif") || CheckExtension(filename, "pcx") ||
-      CheckExtension(filename, "pgm") || CheckExtension(filename, "ppm") ||
-      CheckExtension(filename, "tif") || CheckExtension(filename, "tiff"))
+  
+  // cypress (25 aug 2024) -- add more image support.
+  if (!CheckExtension(filename, "bmp") && !CheckExtension(filename, "png") &&
+      !CheckExtension(filename, "tga") && !CheckExtension(filename, "jpg") &&
+      !CheckExtension(filename, "jpeg"))
   {
     printf("FAILURE: Unsupported image format\n");
     return NULL;
   }
-
-  if (CheckExtension(filename, "jpg") ||
-      CheckExtension(filename, "jpeg"))
-  {
-    // TODO: JPEG
-    printf("FAILURE: JPEG image format not supported yet\n");
-    return NULL;
-  }
-
-  if (! CheckExtension(filename, "png"))
-  {
-    printf("FAILURE: Not an image file\n");
-    return NULL;
-  }
-
 
   FILE *fp = fopen(filename, "rb");
 
@@ -74,7 +59,7 @@ rgb_image_c *MIP_LoadImage(const char *filename)
     return NULL;
   }
 
-  rgb_image_c * img = PNG_Load(fp);
+  rgb_image_c * img = Image_Load(fp);
 
   fclose(fp);
 
@@ -531,22 +516,10 @@ static bool Do_SaveImage(rgb_image_c *img, const char *lump_name, bool fullbrigh
     return false;
   }
 
-  FILE *fp = fopen(filename, "wb");
-
-  if (! fp)
-  {
-    printf("FAILURE: cannot create output file: %s\n\n", filename);
-
-    StringFree(filename);
-    return false;
-  }
-
-  bool result = PNG_Save(fp, img);
+  bool result = Image_Save(filename, img);
 
   if (! result)
     printf("FAILURE: error while writing PNG file\n\n");
-
-  fclose(fp);
 
   StringFree(filename);
 
@@ -861,21 +834,7 @@ bool MIP_DecodeWAL(int entry, const char *filename)
 
 
   // TODO: transparent bits and/or SKY
-
-
-  FILE *fp = fopen(filename, "wb");
-
-  if (! fp)
-  {
-    printf("FAILURE: cannot create output file: %s\n\n", filename);
-
-    delete img;
-    return false;
-  }
-
-  bool result = PNG_Save(fp, img);
-
-  fclose(fp);
+  bool result = Image_Save(filename, img);
 
   delete img;
 

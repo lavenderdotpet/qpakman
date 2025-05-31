@@ -28,7 +28,7 @@
 #include "im_color.h"
 #include "im_image.h"
 #include "im_mip.h"
-#include "im_png.h"
+#include "im_format.h"
 #include "q1_structs.h"
 
 
@@ -42,7 +42,7 @@ static int StorePOP(FILE *fp, const char *lump)
 {
   printf("  Converting POP back to LMP...\n");
 
-  rgb_image_c *img = PNG_Load(fp);
+  rgb_image_c *img = Image_Load(fp);
 
   if (! img)
   {
@@ -110,21 +110,11 @@ static int AnalysePOP(int entry, const char *path)
     img->PixelAt(x, y) = COL_ReadPalette(pop[y*16+x]);
   }
 
-
-  FILE *fp = fopen(png_name, "wb");
-  if (! fp)
-  {
-    printf("FAILURE: cannot create output file: %s\n\n", png_name);
-    delete img;
-    return ARCSP_Failed;
-  }
-
-  bool result = PNG_Save(fp, img);
+  bool result = Image_Save(png_name, img);
 
   if (! result)
     printf("FAILURE: error while writing PNG file\n\n");
 
-  fclose(fp);
   delete img;
 
   // POP image is merely additional to the POP lmp
@@ -320,7 +310,7 @@ static int StoreLMP(FILE *fp, const char *lump)
 {
   printf("  Converting PNG graphic to LMP...\n");
 
-  rgb_image_c *img = PNG_Load(fp);
+  rgb_image_c *img = Image_Load(fp);
 
   if (! img)
   {
@@ -423,21 +413,11 @@ static int ExtractLMP(int entry, const char *path)
 
   delete[] pixels;
 
-
-  FILE *fp = fopen(png_name, "wb");
-  if (! fp)
-  {
-    printf("FAILURE: cannot create output file: %s\n\n", png_name);
-    delete img;
-    return ARCSP_Failed;
-  }
-
-  bool result = PNG_Save(fp, img);
+  bool result = Image_Save(png_name, img);
 
   if (! result)
     printf("FAILURE: error while writing PNG file\n\n");
 
-  fclose(fp);
   delete img;
 
 
